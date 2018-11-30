@@ -1,10 +1,13 @@
 package ru.mr_reminder.mr_reminder
 
+import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.provider.AlarmClock.EXTRA_MESSAGE
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.EditText
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -15,10 +18,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+    }
+
+    /** Called when the user taps the Send button */
+    fun sendMessage(view: View) {
+        val editText = findViewById<EditText>(R.id.editText)
+        val message = editText.text.toString()
+        val intent = Intent(this, DisplayMessageActivity::class.java).apply {
+            putExtra(EXTRA_MESSAGE, message)
         }
+        startActivity(intent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
