@@ -10,24 +10,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
-
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 //import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -38,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Cursor mementoCursor;
     SimpleCursorAdapter mementoAdapter;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -65,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         mementoCursor = db.rawQuery("select * from " + AddMementoActivity.TABLE_NAME, null);
         if (mementoCursor.moveToFirst()) {
             do {
+                System.out.println(mementoCursor.getString(mementoCursor.getColumnIndex(AddMementoActivity.Cols.NAME)));
                 restartNotify(mementoCursor);
 
             } while (mementoCursor.moveToNext());
@@ -83,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         db.close();
         mementoCursor.close();
     }
+
     public void createMemento(View view) {
         Intent intent = new Intent(this, AddMementoActivity.class);
         startActivity(intent);
@@ -104,14 +104,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         long time = date.getTime();
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, TimeNotification.class);
-        intent.putExtra("memento", (Serializable) memento);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-                intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Date resultdate = new Date(System.currentTimeMillis());
+        System.out.println(format.format(resultdate));
+        System.out.println(date);
+        if (time > System.currentTimeMillis()) {
+            AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, TimeNotification.class);
+            intent.putExtra("memento", (Serializable) memento);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+                    intent, FLAG_UPDATE_CURRENT);
 
-        assert am != null;
-        am.cancel(pendingIntent);
-        am.set(AlarmManager.RTC_WAKEUP, date.getTime(), pendingIntent);
+
+            assert am != null;
+            am.set(AlarmManager.RTC, time, pendingIntent);
+        }
     }
 }
