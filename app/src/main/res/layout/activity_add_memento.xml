@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
     <ScrollView
@@ -15,6 +15,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Введите имя"
+                android:inputType="text" />
 
             <EditText
                 android:id="@+id/description"
@@ -31,23 +38,16 @@
                 android:hint="Введите дату и время "
                 android:inputType="date|time" />
 
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Введите имя"
-                android:inputType="text" />
-
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="220dp"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-            <EditText android:id="@+id/imgUrlView"
+            <EditText
+                android:id="@+id/imgUrlView"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                />
+                android:layout_height="0dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -56,16 +56,43 @@
 
                 <Button
                     android:id="@+id/button"
-                    android:layout_width="180dp"
+                    android:layout_width="176dp"
                     android:layout_height="wrap_content"
                     android:text="Выбрать готовое..." />
 
                 <Button
                     android:id="@+id/photoBtn"
-                    android:layout_width="match_parent"
+                    android:layout_width="187dp"
                     android:layout_height="match_parent"
                     android:onClick="onTakePhoto"
                     android:text="Сделать фото" />
+            </LinearLayout>
+
+            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="154dp"
+                tools:context=".MapsActivity" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/lngView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:ems="10"
+                    android:inputType="text" />
+                <EditText
+                    android:id="@+id/latView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:ems="10"
+                    android:inputType="text" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,12 +119,5 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <!--<EditText-->
-        <!--android:id="@+id/photo"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:hint="Введите год рождения"-->
-        <!--android:inputType="im" />-->
 
 </LinearLayout>
