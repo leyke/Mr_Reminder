@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         mementoCursor = db.rawQuery("select * from " + AddMementoActivity.TABLE_NAME, null);
         if (mementoCursor.moveToFirst()) {
             do {
-                System.out.println(mementoCursor.getString(mementoCursor.getColumnIndex(AddMementoActivity.Cols.NAME)));
                 restartNotify(mementoCursor);
 
             } while (mementoCursor.moveToNext());
@@ -88,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void credits(View view) {
+        Intent intent = new Intent(this, CreditActivity.class);
+        startActivity(intent);
+    }
+
     private void restartNotify(Cursor MementoCursor) {
         String dtStr = MementoCursor.getString(MementoCursor.getColumnIndex(AddMementoActivity.Cols.DATETIME));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
@@ -104,9 +108,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         long time = date.getTime();
-        Date resultdate = new Date(System.currentTimeMillis());
-        System.out.println(format.format(resultdate));
-        System.out.println(date);
+
         if (time > System.currentTimeMillis()) {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(this, TimeNotification.class);

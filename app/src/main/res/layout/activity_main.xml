@@ -39,7 +39,7 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="createMemento"
-        app:backgroundTint="@color/colorPrimaryDark"
+        app:backgroundTint="@color/Btn_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_add" />
@@ -47,17 +47,16 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton2"
         android:layout_width="wrap_content"
-        android:layout_height="39dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="createMemento"
+        android:onClick="credits"
         app:backgroundTint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/floatingActionButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_add"
-        tools:srcCompat="@android:drawable/ic_menu_help" />
+        app:srcCompat="@android:drawable/ic_menu_help" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

@@ -2,6 +2,7 @@ package ru.mr_reminder.mr_reminder;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,29 +28,27 @@ public class TimeNotification extends BroadcastReceiver {
         if (extras != null) {
             memento = (Map<String, String>) extras.getSerializable("memento");
         }
-
-
         assert memento != null;
+        Long mementoId = Long.valueOf(memento.get("id"));
+        Intent intentTL = new Intent(context, AddMementoActivity.class);
+
+        System.out.println(mementoId);
+        intentTL.putExtra("id", mementoId);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, Integer.parseInt(memento.get("id")), intentTL, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(memento.get("name"))
-                        .setContentText(memento.get("text"));
+                        .setContentText(memento.get("text"))
+                        .addAction(R.mipmap.ic_launcher, "Открыть", pendingIntent)
+                ;
 
-//        NotificationCompat.Builder builder =
-//                new NotificationCompat.Builder(context, CHANNEL_ID)
-//                .setSmallIcon(R.drawable.notification_icon)
-//                .setContentTitle(memento.get("name"))
-//                .setContentText(memento.get("text"))
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         Notification notification = builder.build();
 
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-
-//Интент для активити, которую мы хотим запускать при нажатии на уведомление
-        Intent intentTL = new Intent(context, AddMementoActivity.class);
-        intent.putExtra("id", memento.get("id"));
 
         notification.flags = Notification.DEFAULT_LIGHTS | Notification.FLAG_AUTO_CANCEL;
 

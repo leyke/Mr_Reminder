@@ -35,10 +35,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 public class AddMementoActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -47,6 +43,7 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
     private final int TAKE_PICTURE_REQUEST = 2;
     public static final int GALLERY_KITKAT_INTENT_CALLED = 3;
     private ImageView imageView;
+    private Uri outputFileUri;
 
     //Таблица
     public static final String TABLE_NAME = "Memento";
@@ -113,8 +110,7 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
                 Intent pickIntent = new Intent();
                 pickIntent.setType("image/*");
                 pickIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                pickIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
                 pickIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(pickIntent, "Выбрать изображение"), GALLERY_REQUEST);
             }
@@ -156,22 +152,20 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
 
             if (urlStr != null) {
                 urlBox.setText(urlStr);
-//
-//                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//                intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                intent.setType("*/*");
-//                startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);
 
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
-//                Bitmap bitmap = null;
+//                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.MANAGE_DOCUMENTS) != PackageManager.PERMISSION_GRANTED) {
 //
-//                try {
-//                    bitmap = getBitmapFromUri(Uri.parse(urlStr));
-//                } catch (IOException e) {
-//                    e.printStackTrace();
+//                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                    intent.setType("*/*");
+//                    startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);
+//
 //                }
-//
-//                imageView.setImageBitmap(bitmap);
+                Bitmap bitmap = null;
+                Uri imgUri = Uri.parse(urlStr);
+                imageView.setImageURI(imgUri);
+
 
             } else {
                 imageView.setVisibility(View.GONE);
@@ -193,13 +187,6 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
                 (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         assert lm != null;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         location = lm
@@ -260,6 +247,20 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
         return image;
     }
 
+    private void saveFullImage() {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        File file = new File(Environment.getExternalStorageDirectory(),
+                System.currentTimeMillis() + "_photo.jpg");
+
+        Uri outputFileUri = Uri.fromFile(file);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+        startActivityForResult(intent, TAKE_PICTURE_REQUEST);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
@@ -284,28 +285,19 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
                 if (resultCode == RESULT_OK) {
                     // Проверяем, содержит ли результат маленькую картинку
                     if (imageReturnedIntent != null) {
-                        if (imageReturnedIntent.hasExtra("output")) {
-
-                            imageView = (ImageView) findViewById(R.id.imageView);
-                            try {
-                                bitmap = getBitmapFromUri(Uri.parse(String.valueOf(imageReturnedIntent.getParcelableExtra("output"))));
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                        if (imageReturnedIntent.hasExtra("data")) {
+                            Bitmap thumbnailBitmap = imageReturnedIntent.getParcelableExtra("data");
                             // Какие-то действия с миниатюрой
-                            Uri selectedImage = imageReturnedIntent.getData();
-                            final int takeFlags = imageReturnedIntent.getFlags()
-                                    & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-// Check for the freshest data.
-                            assert selectedImage != null;
-                            getContentResolver().takePersistableUriPermission(selectedImage, takeFlags);
-                            imageView.setImageBitmap(bitmap);
-
-                            urlBox = (EditText) findViewById(R.id.imgUrlView);
-                            urlBox.setText(selectedImage.toString());
+                            imageView.setImageBitmap(thumbnailBitmap);
                         }
                     }
+//                    else {
+//                        // Какие-то действия с полноценным изображением,
+//                        // сохраненным по адресу outputFileUri
+//                        imageView.setImageURI(outputFileUri);
+//                        urlBox = (EditText) findViewById(R.id.imgUrlView);
+//                        urlBox.setText(outputFileUri.toString());
+//                    }
                 }
                 break;
         }
@@ -314,24 +306,6 @@ public class AddMementoActivity extends AppCompatActivity implements OnMapReadyC
 
     private void getThumbnailPicture() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, TAKE_PICTURE_REQUEST);
-    }
-
-    private void saveFullImage() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.ENGLISH);
-        Date date = Calendar.getInstance().getTime();
-
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-        File file = new File(Environment.getExternalStorageDirectory(),
-                date.toString() + ".jpg");
-
-        Uri outputFileUri = Uri.fromFile(file);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
         startActivityForResult(intent, TAKE_PICTURE_REQUEST);
     }
 
